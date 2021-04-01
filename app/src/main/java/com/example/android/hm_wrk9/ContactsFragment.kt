@@ -57,25 +57,26 @@ class ContactsFragment : Fragment() {
             REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getContacts()
-                }   else {
+                } else {
                     AlertDialog.Builder(requireContext())
                         .setTitle("Доступ к контактам")
                         .setMessage("Объяснение")
-                        .setNegativeButton("закрыть") {dialog, _ -> dialog.dismiss() }
+                        .setNegativeButton("закрыть") { dialog, _ -> dialog.dismiss() }
                         .create()
                         .show()
                 }
-            return}
+                return
+            }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     private fun getContacts() {
         //  Получаем контент реаольвер у контент провайдера
-        val contentResolver : ContentResolver = requireContext().contentResolver
+        val contentResolver: ContentResolver = requireContext().contentResolver
 
         //  Отправляем запрос на получение контактов и получаем ответ в виде КУРСОРА
-        val cursorWithContacts : Cursor? = contentResolver.query(
+        val cursorWithContacts: Cursor? = contentResolver.query(
             ContactsContract.Contacts.CONTENT_URI,
             null,
             null,
@@ -83,15 +84,21 @@ class ContactsFragment : Fragment() {
             ContactsContract.Contacts.DISPLAY_NAME + " ASC"
         )
 
-        if(cursorWithContacts == null) return
+        if (cursorWithContacts == null) return
 
-            for (i in 0..cursorWithContacts.count) {
-                if (cursorWithContacts.moveToPosition(i)) {
-                    val name = cursorWithContacts.getString(cursorWithContacts.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-                    val number = cursorWithContacts.getInt(cursorWithContacts.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)).toString()
+        for (i in 0..cursorWithContacts.count) {
+            if (cursorWithContacts.moveToPosition(i)) {
+                val name = cursorWithContacts.getString(
+                    cursorWithContacts.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
+                )
+                val number =
+                    cursorWithContacts.getInt(cursorWithContacts.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))
+                        .toString()
+                if (name != null && number != null) {
                     addView(requireContext(), name, number)
                 }
             }
+        }
 
         cursorWithContacts?.close()
     }
@@ -107,7 +114,7 @@ class ContactsFragment : Fragment() {
         })
         binding.containerForContacts.addView(View(context).apply {
             background = resources.getDrawable(R.color.black)
-            layoutParams.height = resources.getDimension(R.dimen.viewHeight).toInt()
+//            layoutParams.height = resources.getDimension(R.dimen.viewHeight).toInt()
         })
     }
 
@@ -122,17 +129,17 @@ class ContactsFragment : Fragment() {
             }
             // Если нужно пояснение для получения доступа
             else -> {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle("Дай доступ к контактам")
-                        .setMessage("Так надо")
-                        .setPositiveButton("Дать") { _, _ ->
-                            requestPermission()
-                        }
-                        .setNegativeButton("Не давать") { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .create()
-                        .show()
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Дай доступ к контактам")
+                    .setMessage("Так надо")
+                    .setPositiveButton("Дать") { _, _ ->
+                        requestPermission()
+                    }
+                    .setNegativeButton("Не давать") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .create()
+                    .show()
 
             }
         }
